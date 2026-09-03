@@ -56,8 +56,12 @@ router.post('/create-editor', protectRoute, isAdmin, async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString('hex');
     console.log('2. Token generated:', verificationToken);
 
-    await sendVerificationEmail(user.email, verificationToken);
-
+    try {
+      await sendVerificationEmail(user.email, verificationToken);
+      console.log('✅ Email sent');
+    } catch (emailError) {
+      console.log('⚠️ Email failed, but user was created:', emailError.message);
+    }
     // Save the verification token in the database
     const newVerificationToken = new VerificationToken({
       userId: user._id,
@@ -154,6 +158,138 @@ router.delete('/reject/:id', protectRoute, isAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error deleting user ', error);
     return res.status(500).json({ message: 'Error deleting user' });
+  }
+});
+
+router.get('/users', protectRoute, isAdmin, async (req, res) => {
+  try {
+    const { role, isActive, isVerified } = req.query;
+
+    const filter = {};
+    if (role) {
+      filter.role = role;
+    }
+    if (isActive !== undefined) {
+      filter.isActive = isActive === 'true';
+    }
+    if (isVerified !== undefined) {
+      filter.isVerified = isVerified === 'true';
+    }
+
+    const users = await User.find(filter).select('-password').sort({
+      createdAt: -1,
+    });
+
+    return res.status(200).json({
+      message: 'All users retrieved successfully',
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
+router.get('/users/:id', protectRoute, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({ message: 'User found', data: user });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error fetching user' });
+  }
+});
+
+router.put('/users/:id', protectRoute, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, email, role, bio } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.role = role || user.role;
+    user.bio = bio || user.bio;
+
+    await user.save();
+
+    return res.status(200).json({ message: 'user updated', data: user });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error updating user' });
+  }
+});
+
+router.delete('/users/:id', protectRoute, isAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    await user.deleteOne();
+    return res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return res.status(500).json({ message: 'Error deleting user' });
+  }
+});
+
+router.post(
+  '/users/:id/deactivate',
+  protectRoute,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (user.isActive === false) {
+        return res.status(400).json({ message: 'User is not active' });
+      }
+
+      user.isActive = false;
+
+      await user.save();
+      return res.status(200).json({ message: 'User deactivated successfully' });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error deactivating user' });
+    }
+  },
+);
+
+router.post('/users/:id/activate', protectRoute, isAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isActive === true) {
+      return res.status(400).json({ message: 'User is  active' });
+    }
+
+    user.isActive = true;
+
+    await user.save();
+    return res.status(200).json({ message: 'User activated successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error activating user' });
   }
 });
 export default router;

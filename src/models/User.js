@@ -49,6 +49,23 @@ const userSchema = new mongoose.Schema(
     createdPosts: {
       type: [mongoose.Schema.Types.ObjectId],
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastLogin: {
+      type: Date,
+    },
+    passwordResetToken: {
+      type: String,
+    },
+    failedLoginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lockedOutUntil: {
+      type: Date,
+    },
   },
   { timestamps: true },
 );
