@@ -10,6 +10,7 @@ import tagRoutes from './routes/tagRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import bookmarkRoutes from './routes/bookmarkRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/tags', tagRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', commentRoutes);
 app.use('/api', bookmarkRoutes);
+app.use('/api/upload', uploadRoutes);
 // Temporary test route
 // app.get('/test-email', async (req, res) => {
 //   await sendVerificationEmail(process.env.EMAIL_FROM, 'test-token');

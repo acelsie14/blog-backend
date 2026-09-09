@@ -48,7 +48,7 @@ const postSchema = mongoose.Schema(
     readingTime: {
       type: Number,
     },
-    schduledPublish: {
+    scheduledPublish: {
       type: Date,
     },
     slug: {
