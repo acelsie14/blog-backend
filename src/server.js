@@ -11,6 +11,9 @@ import userRoutes from './routes/userRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import bookmarkRoutes from './routes/bookmarkRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import cors from 'cors';
+
+app.use(cors()); // Make sure this is here
 
 const app = express();
 
