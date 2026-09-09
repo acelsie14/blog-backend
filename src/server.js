@@ -13,10 +13,8 @@ import bookmarkRoutes from './routes/bookmarkRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import cors from 'cors';
 
-app.use(cors()); // Make sure this is here
-
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
