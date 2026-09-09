@@ -43,10 +43,21 @@ router.post(
       // Upload to Cloudinary
       const result = await new Promise((resolve, reject) => {
         cloudinary.uploader
-          .upload_stream({ folder: 'blog-posts' }, (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          })
+          .upload_stream(
+            {
+              folder: 'blog-posts',
+              resource_type: 'auto',
+              transformation: [
+                { width: 1200, crop: 'limit' }, // ✅ Limit width
+                { quality: 'auto:low' }, // ✅ Lower quality for speed
+                { fetch_format: 'auto' }, // ✅ Auto format
+              ],
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            },
+          )
           .end(req.file.buffer);
       });
 
