@@ -183,7 +183,7 @@ router.get('/', async (req, res) => {
     }
 
     const posts = await Post.find(filter)
-      .sort({ publishedAt: -1 })
+      .sort({ createdAt: -1 })
       .populate('author', 'username profileImage')
       .populate('categories', 'name slug')
       .populate('tags', 'name slug');
