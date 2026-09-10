@@ -28,11 +28,11 @@ router.put('/profile', protectRoute, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    user.username = username;
-    user.email = email;
-    user.phoneNumber = phoneNumber;
-    user.bio = bio;
-    user.profileImage = profileImage;
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.phoneNumber = phoneNumber || user.phoneNumber;
+    user.bio = bio || user.bio;
+    user.profileImage = profileImage || user.profileImage;
     await user.save();
     return res.status(200).json({
       message: 'User profile updated successfully',
