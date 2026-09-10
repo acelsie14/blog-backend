@@ -24,7 +24,7 @@ router.get('/profile', protectRoute, async (req, res) => {
 router.put('/profile', protectRoute, async (req, res) => {
   try {
     const { username, email, phoneNumber, bio, profileImage } = req.body;
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -75,7 +75,10 @@ router.delete('/profile', protectRoute, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    await user.remove();
+    await user.deleteOne();
+    await Post.deleteMany({ author: user._id });
+    await Comment.deleteMany({ author: user._id });
+    await Bookmark.deleteMany({ user: user._id });
 
     return res
       .status(200)
