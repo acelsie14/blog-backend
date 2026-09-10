@@ -136,9 +136,15 @@ router.post('/', protectRoute, async (req, res) => {
 });
 
 // ============ GET ALL POSTS (with filters) ============
+// ============ GET ALL POSTS (with filters) ============
 router.get('/', async (req, res) => {
   try {
     const { status, category, tag, author, search } = req.query;
+
+    // ===== PAGINATION =====
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
     const filter = {};
 
@@ -182,8 +188,13 @@ router.get('/', async (req, res) => {
       ];
     }
 
+    // ===== GET TOTAL COUNT (for pagination metadata) =====
+    const totalCount = await Post.countDocuments(filter);
+
     const posts = await Post.find(filter)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate('author', 'username profileImage')
       .populate('categories', 'name slug')
       .populate('tags', 'name slug');
@@ -192,6 +203,14 @@ router.get('/', async (req, res) => {
       message: 'All posts retrieved successfully',
       success: true,
       count: posts.length,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: page * limit < totalCount,
+        hasPrevPage: page > 1,
+      },
       data: posts,
     });
   } catch (error) {
@@ -199,30 +218,6 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ message: 'Failed to fetch posts' });
   }
 });
-
-// ============ GET SINGLE POST ============
-router.get('/:id', async (req, res) => {
-  try {
-    const postId = req.params.id;
-
-    const post = await Post.findById(postId)
-      .populate('author', 'username profileImage')
-      .populate('categories', 'name slug')
-      .populate('tags', 'name slug');
-
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-
-    return res
-      .status(200)
-      .json({ message: 'Post found', post: post, success: true });
-  } catch (error) {
-    console.error('Error fetching post:', error);
-    return res.status(500).json({ message: 'Error fetching post' });
-  }
-});
-
 // ============ UPDATE POST ============
 router.put('/:id', protectRoute, isAuthor, async (req, res) => {
   try {

@@ -65,6 +65,14 @@ router.delete('/posts/:postId/unbookmark', protectRoute, async (req, res) => {
 router.get('/users/me/bookmarks', protectRoute, async (req, res) => {
   try {
     const userId = req.user._id;
+
+    // ===== PAGINATION =====
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalCount = await Bookmark.countDocuments({ user: userId });
+
     const bookmarks = await Bookmark.find({ user: userId })
       .populate({
         path: 'post',
@@ -74,12 +82,22 @@ router.get('/users/me/bookmarks', protectRoute, async (req, res) => {
           select: 'username profileImage',
         },
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       success: true,
       message: 'Bookmarks fetched successfully',
       count: bookmarks.length,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: page * limit < totalCount,
+        hasPrevPage: page > 1,
+      },
       data: bookmarks,
     });
   } catch (error) {
@@ -88,7 +106,6 @@ router.get('/users/me/bookmarks', protectRoute, async (req, res) => {
       .json({ success: false, message: 'Error fetching bookmarks', error });
   }
 });
-
 router.get('/posts/:postId/bookmarks', protectRoute, async (req, res) => {
   try {
     const { postId } = req.params;
