@@ -23,13 +23,14 @@ router.get('/profile', protectRoute, async (req, res) => {
 
 router.put('/profile', protectRoute, async (req, res) => {
   try {
-    const { username, email, bio, profileImage } = req.body;
+    const { username, email, phoneNumber, bio, profileImage } = req.body;
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     user.username = username;
     user.email = email;
+    user.phoneNumber = phoneNumber;
     user.bio = bio;
     user.profileImage = profileImage;
     await user.save();
