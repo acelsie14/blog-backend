@@ -218,6 +218,28 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ message: 'Failed to fetch posts' });
   }
 });
+// ============ GET SINGLE POST ============
+router.get('/:id', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+      .populate('author', 'username profileImage')
+      .populate('categories', 'name slug')
+      .populate('tags', 'name slug');
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    return res.status(200).json({
+      message: 'Post fetched successfully',
+      success: true,
+      data: post,
+    });
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    return res.status(500).json({ message: 'Error fetching post' });
+  }
+});
 // ============ UPDATE POST ============
 router.put('/:id', protectRoute, isAuthor, async (req, res) => {
   try {
