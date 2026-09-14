@@ -52,7 +52,7 @@ router.put('/:id', protectRoute, isAdmin, async (req, res) => {
     if (!tag) {
       return res.status(404).json({ message: 'Tag not found' });
     }
-    tag.name = name || req.tag.name;
+    tag.name = name || tag.name;
 
     if (name) {
       tag.slug = name
@@ -68,7 +68,7 @@ router.put('/:id', protectRoute, isAdmin, async (req, res) => {
     });
   } catch (error) {
     console.log('Error updating tag: ', error);
-    return res.status(500).json({ message: 'Error updating category' });
+    return res.status(500).json({ message: 'Error updating tag' });
   }
 });
 

@@ -90,7 +90,7 @@ router.put('/:id', protectRoute, isAdmin, async (req, res) => {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    category.name = name || req.category.name;
+    category.name = name || category.name;
     if (name) {
       category.slug = name
         .toLowerCase()
@@ -98,7 +98,7 @@ router.put('/:id', protectRoute, isAdmin, async (req, res) => {
         .replace(/^-+|-+$/g, '');
     }
 
-    category.description = description || req.category.description;
+    category.description = description || category.description;
 
     await category.save();
     return res.status(200).json({
