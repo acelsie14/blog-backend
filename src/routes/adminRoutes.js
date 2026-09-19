@@ -74,6 +74,7 @@ router.post('/create-editor', protectRoute, isAdmin, async (req, res) => {
 
     return res.status(201).json({
       message: 'Editor created sucessfullly. Verification email sent ',
+      success: true,
     });
   } catch (error) {
     console.log('error creating editor: ', error);
@@ -131,6 +132,7 @@ router.post('/approve/:id', protectRoute, isAdmin, async (req, res) => {
 
     return res.status(201).json({
       message: 'Editor approved sucessfullly. Verification email sent ',
+      success: true,
     });
   } catch (error) {
     console.log('error approving editor: ', error);
@@ -188,7 +190,9 @@ router.get('/users', protectRoute, isAdmin, async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching users:', error);
-    return res.status(500).json({ message: 'Failed to fetch users' });
+    return res
+      .status(500)
+      .json({ message: 'Failed to fetch users', success: false });
   }
 });
 
@@ -201,7 +205,9 @@ router.get('/users/:id', protectRoute, isAdmin, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    return res.status(200).json({ message: 'User found', data: user });
+    return res
+      .status(200)
+      .json({ message: 'User found', data: user, success: true });
   } catch (error) {
     return res.status(500).json({ message: 'Error fetching user' });
   }
@@ -225,7 +231,9 @@ router.put('/users/:id', protectRoute, isAdmin, async (req, res) => {
 
     await user.save();
 
-    return res.status(200).json({ message: 'user updated', data: user });
+    return res
+      .status(200)
+      .json({ message: 'user updated', data: user, success: true });
   } catch (error) {
     return res.status(500).json({ message: 'Error updating user' });
   }
@@ -239,7 +247,9 @@ router.delete('/users/:id', protectRoute, isAdmin, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     await user.deleteOne();
-    return res.status(200).json({ message: 'User deleted successfully' });
+    return res
+      .status(200)
+      .json({ message: 'User deleted successfully', success: true });
   } catch (error) {
     console.error('Error deleting user:', error);
     return res.status(500).json({ message: 'Error deleting user' });
@@ -265,7 +275,9 @@ router.post(
       user.isActive = false;
 
       await user.save();
-      return res.status(200).json({ message: 'User deactivated successfully' });
+      return res
+        .status(200)
+        .json({ message: 'User deactivated successfully', success: true });
     } catch (error) {
       return res.status(500).json({ message: 'Error deactivating user' });
     }
@@ -287,7 +299,9 @@ router.post('/users/:id/activate', protectRoute, isAdmin, async (req, res) => {
     user.isActive = true;
 
     await user.save();
-    return res.status(200).json({ message: 'User activated successfully' });
+    return res
+      .status(200)
+      .json({ message: 'User activated successfully', success: true });
   } catch (error) {
     return res.status(500).json({ message: 'Error activating user' });
   }
