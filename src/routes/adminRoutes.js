@@ -113,6 +113,7 @@ router.post('/approve/:id', protectRoute, isAdmin, async (req, res) => {
     }
 
     user.role = 'editor';
+    user.isVerified = true;
     await user.save();
 
     const verificationToken = crypto.randomBytes(32).toString('hex');
