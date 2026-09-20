@@ -85,7 +85,7 @@ router.post('/create-editor', protectRoute, isAdmin, async (req, res) => {
 router.get('/pending', protectRoute, isAdmin, async (req, res) => {
   try {
     const pendingUsers = await User.find({ role: 'pending' }).select(
-      'username email phoneNumber bio createdAt',
+      '-password',
     );
 
     return res.status(200).json({
