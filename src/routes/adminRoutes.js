@@ -116,19 +116,25 @@ router.post('/approve/:id', protectRoute, isAdmin, async (req, res) => {
     await user.save();
 
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    console.log('2. Token generated:', verificationToken);
 
-    await sendVerificationEmail(user.email, verificationToken);
-
-    // Save the verification token in the database
+    // Save the token FIRST — it's the critical step
     const newVerificationToken = new VerificationToken({
       userId: user._id,
       token: verificationToken,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
-
     await newVerificationToken.save();
-    console.log('4. Verification token saved');
+
+    // THEN attempt the email — non-critical
+    try {
+      await sendVerificationEmail(user.email, verificationToken);
+      console.log('✅ Email sent');
+    } catch (emailError) {
+      console.log(
+        '⚠️ Email failed, but user was approved:',
+        emailError.message,
+      );
+    }
 
     return res.status(201).json({
       message: 'Editor approved sucessfullly. Verification email sent ',
