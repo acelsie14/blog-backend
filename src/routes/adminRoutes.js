@@ -48,32 +48,32 @@ router.post('/create-editor', protectRoute, isAdmin, async (req, res) => {
       password: password,
       bio: bio,
       role: 'editor',
-      isVerified: false,
+      isVerified: true,
     });
     await user.save();
     console.log('1. User saved');
 
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    console.log('2. Token generated:', verificationToken);
+    // const verificationToken = crypto.randomBytes(32).toString('hex');
+    // console.log('2. Token generated:', verificationToken);
 
-    try {
-      await sendVerificationEmail(user.email, verificationToken);
-      console.log('✅ Email sent');
-    } catch (emailError) {
-      console.log('⚠️ Email failed, but user was created:', emailError.message);
-    }
-    // Save the verification token in the database
-    const newVerificationToken = new VerificationToken({
-      userId: user._id,
-      token: verificationToken,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-    });
+    // try {
+    //   await sendVerificationEmail(user.email, verificationToken);
+    //   console.log('✅ Email sent');
+    // } catch (emailError) {
+    //   console.log('⚠️ Email failed, but user was created:', emailError.message);
+    // }
+    // // Save the verification token in the database
+    // const newVerificationToken = new VerificationToken({
+    //   userId: user._id,
+    //   token: verificationToken,
+    //   expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    // });
 
-    await newVerificationToken.save();
-    console.log('4. Verification token saved');
+    // await newVerificationToken.save();
+    // console.log('4. Verification token saved');
 
     return res.status(201).json({
-      message: 'Editor created sucessfullly. Verification email sent ',
+      message: 'Editor created sucessfullly.',
       success: true,
     });
   } catch (error) {
